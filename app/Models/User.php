@@ -46,7 +46,7 @@ public function isAdmin()
 
 public function isDoctor()
 {
-    return $this->role === 'doctor';
+    return $this->role === 'doctor' && $this->doctor && $this->doctor->status === 'approved';
 }
 
 public function isPatient()

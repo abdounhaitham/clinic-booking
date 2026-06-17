@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use App\Models\Doctor;
 
 class RegisteredUserController extends Controller
 {
@@ -28,19 +29,35 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+   public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'specialty' => ['required_if:is_doctor,1', 'nullable', 'string'],
+            'license' => ['required_if:is_doctor,1', 'nullable', 'image', 'max:5120'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'patient',
         ]);
+
+        if ($request->has('is_doctor')) {
+            $licensePath = $request->file('license')->store('licenses', 'public');
+
+            \App\Models\Doctor::create([
+                'user_id' => $user->id,
+                'specialty' => $request->specialty,
+                'phone' => $request->phone,
+                'bio' => $request->bio,
+                'status' => 'pending',
+                'license_path' => $licensePath,
+            ]);
+        }
 
         event(new Registered($user));
 

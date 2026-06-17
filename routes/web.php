@@ -36,6 +36,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::post('/doctors', [AdminController::class, 'makeDoctor'])->name('admin.makeDoctor');
+        Route::patch('/doctors/{doctor}/approve', [AdminController::class, 'approveDoctor'])->name('admin.doctor.approve');
+        Route::patch('/doctors/{doctor}/reject', [AdminController::class, 'rejectDoctor'])->name('admin.doctor.reject');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

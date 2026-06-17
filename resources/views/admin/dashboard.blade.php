@@ -61,6 +61,47 @@
     </form>
 </div>
 
+<!-- Pending Doctor Applications -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <span class="w-2 h-6 bg-yellow-500 rounded-full inline-block"></span>
+        Pending Doctor Applications
+    </h2>
+    @if($pendingDoctors->isEmpty())
+        <p class="text-gray-400 text-sm">No pending applications.</p>
+    @else
+        <div class="space-y-4">
+            @foreach($pendingDoctors as $doctor)
+            <div class="border border-gray-100 rounded-lg p-4 flex justify-between items-center">
+                <div>
+                    <p class="font-medium text-gray-800">{{ $doctor->user->name }}</p>
+                    <p class="text-sm text-gray-500">{{ $doctor->user->email }}</p>
+                    <p class="text-sm text-teal-600 mt-1">{{ $doctor->specialty }}</p>
+                    @if($doctor->bio)
+                    <p class="text-sm text-gray-400 mt-1">{{ $doctor->bio }}</p>
+                    @endif
+                    @if($doctor->license_path)
+                    <a href="{{ asset('storage/' . $doctor->license_path) }}" target="_blank" class="inline-block mt-2">
+                        <img src="{{ asset('storage/' . $doctor->license_path) }}" alt="License" class="w-32 h-20 object-cover rounded-lg border border-gray-200">
+                    </a>
+                    @endif
+                </div>
+                <div class="flex gap-2">
+                    <form method="POST" action="{{ route('admin.doctor.approve', $doctor) }}">
+                        @csrf @method('PATCH')
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 font-medium">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.doctor.reject', $doctor) }}">
+                        @csrf @method('PATCH')
+                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 font-medium">Reject</button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+
 <!-- All Appointments -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">

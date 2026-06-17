@@ -12,9 +12,10 @@ class AdminController extends Controller
     public function index()
     {
         $users = User::all();
-        $doctors = Doctor::with('user')->get();
+        $doctors = Doctor::with('user')->where('status', 'approved')->get();
+        $pendingDoctors = Doctor::with('user')->where('status', 'pending')->get();
         $appointments = Appointment::with('patient', 'doctor.user')->get();
-        return view('admin.dashboard', compact('users', 'doctors', 'appointments'));
+        return view('admin.dashboard', compact('users', 'doctors', 'appointments', 'pendingDoctors'));
     }
 
     public function makeDoctor(Request $request)
@@ -37,5 +38,18 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.dashboard')->with('success', 'Doctor added successfully.');
+    }
+
+        public function approveDoctor(Doctor $doctor)
+    {
+        $doctor->update(['status' => 'approved']);
+        $doctor->user->update(['role' => 'doctor']);
+        return redirect()->route('admin.dashboard')->with('success', 'Doctor application approved.');
+    }
+
+        public function rejectDoctor(Doctor $doctor)
+    {
+        $doctor->update(['status' => 'rejected']);
+        return redirect()->route('admin.dashboard')->with('success', 'Doctor application rejected.');
     }
 }
